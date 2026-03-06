@@ -1,7 +1,7 @@
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class UsernameChecker {
+public class StepProblem1 {
 
     // username -> userId
     static HashMap<String, Integer> users = new HashMap<>();
