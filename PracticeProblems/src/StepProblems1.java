@@ -1,78 +1,61 @@
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
+import java.util.Scanner;
 
-public class StepProblems {
+public class UsernameChecker {
 
-    // Store existing usernames (O(1) lookup)
-    private static Set<String> usernames = ConcurrentHashMap.newKeySet();
+    // username -> userId
+    static HashMap<String, Integer> users = new HashMap<>();
 
-    // Track popularity of attempted usernames
-    private static ConcurrentHashMap<String, AtomicInteger> usernameAttempts = new ConcurrentHashMap<>();
+    // username -> attempt count
+    static HashMap<String, Integer> attempts = new HashMap<>();
 
-    public static void main(String[] args) {
-
-        // Simulate existing users
-        usernames.add("john");
-        usernames.add("john123");
-        usernames.add("alice");
-        usernames.add("david");
-
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Enter username to check:");
-        String input = sc.nextLine();
-
-        boolean available = isUsernameAvailable(input);
-
-        if (available) {
-            System.out.println("Username available: " + input);
-        } else {
-            System.out.println("Username already taken.");
-            System.out.println("Suggestions: " + suggestUsernames(input));
-        }
-
-        sc.close();
-    }
-
-    // O(1) username availability check
-    public static boolean isUsernameAvailable(String username) {
-
-        // Track popularity
-        usernameAttempts
-                .computeIfAbsent(username, k -> new AtomicInteger(0))
-                .incrementAndGet();
-
-        return !usernames.contains(username);
+    // Check if username exists
+    public static boolean isAvailable(String username) {
+        return !users.containsKey(username);
     }
 
     // Suggest similar usernames
-    public static List<String> suggestUsernames(String username) {
+    public static void suggestUsername(String username) {
+        System.out.println("Username taken. Suggestions:");
 
-        List<String> suggestions = new ArrayList<>();
-        Random random = new Random();
+        for (int i = 1; i <= 3; i++) {
+            String suggestion = username + i;
 
-        int count = 0;
-
-        while (suggestions.size() < 5 && count < 20) {
-
-            String suggestion = username + (random.nextInt(900) + 100);
-
-            if (!usernames.contains(suggestion)) {
-                suggestions.add(suggestion);
+            if (!users.containsKey(suggestion)) {
+                System.out.println(suggestion);
             }
-
-            count++;
         }
-
-        return suggestions;
     }
 
-    // Optional: show most popular attempted usernames
-    public static void printPopularAttempts() {
+    // Track how many times username is searched
+    public static void trackAttempt(String username) {
+        attempts.put(username, attempts.getOrDefault(username, 0) + 1);
+    }
 
-        usernameAttempts.forEach((user, count) -> {
-            System.out.println(user + " attempted " + count.get() + " times");
-        });
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        // sample existing users
+        users.put("john", 1);
+        users.put("alex", 2);
+        users.put("sam", 3);
+
+        System.out.print("Enter username: ");
+        String username = sc.nextLine();
+
+        // track attempt
+        trackAttempt(username);
+
+        if (isAvailable(username)) {
+            System.out.println("Username is available!");
+        } else {
+            suggestUsername(username);
+        }
+
+        // show attempt count
+        System.out.println("Search count: " + attempts.get(username));
+
+        sc.close();
     }
 }
